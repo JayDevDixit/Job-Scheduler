@@ -40,7 +40,7 @@ export const writelog = async(errormsg)=>{
 
 const jobs = {
     urlReader : 'cd /home/projects/node/urlReader && git pull origin main && npm i',
-    backup: `find /home/projects/backup -type f -name "backup*.tar.gz" -mtime +3 -delete && cd /home/projects/backup && tar -czf backup.${getTodayDate()}.tar.gz ../node/`
+    backup: `find /home/projects/backup -type f -name "backup*.tar.gz" -mtime +10 -delete && cd /home/projects/ && tar --exclude='node_modules' --exclude='.git' --exclude='logs' -czf /home/projects/backup/backup.${getTodayDate()}.tar.gz node/`
 }
 
 
