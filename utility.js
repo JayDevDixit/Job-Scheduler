@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import path from 'path'
 
 const jobs = {
-    urlReader : 'cd /home/projects/node/urlReader && git pull origin main && pm2 restart urlReader'
+    urlReader : 'cd /home/projects/node/urlReader && git pull origin main && npm i && pm2 restart urlReader'
 }
 
 const getTodayDate = () => {
