@@ -2,10 +2,7 @@ import { exec } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path'
 
-const jobs = {
-    urlReader : 'cd /home/projects/node/urlReader && git pull origin main && npm i',
-    backup: `find /home/projects/backup -type f -name "backup*.tar.gz" -mtime +3 -delete && cd /home/projects/backup && tar -czf backup.${getTodayDate()}.tar.gz ../node/`
-}
+
 
 const getTodayDate = () => {
   const today = new Date()
@@ -39,6 +36,13 @@ export const writelog = async(errormsg)=>{
     const logfile = path.join(log_dir,`${getTodayDate()}.log`)
     await fs.appendFile(logfile,`${timeStamp()}      ${errormsg}\n`,'utf-8')
 }
+
+
+const jobs = {
+    urlReader : 'cd /home/projects/node/urlReader && git pull origin main && npm i',
+    backup: `find /home/projects/backup -type f -name "backup*.tar.gz" -mtime +3 -delete && cd /home/projects/backup && tar -czf backup.${getTodayDate()}.tar.gz ../node/`
+}
+
 
 export const scheduleJobs = async () =>{
     writelog('Running scheduled jobs');
