@@ -3,7 +3,8 @@ import fs from 'fs/promises';
 import path from 'path'
 
 const jobs = {
-    urlReader : 'cd /home/projects/node/urlReader && git pull origin main && npm i && pm2 restart urlReader'
+    urlReader : 'cd /home/projects/node/urlReader && git pull origin main && npm i',
+    backup: `find /home/projects/backup -type f -name "backup*.tar.gz" -mtime +3 -delete && cd /home/projects/backup && tar -czf backup.${getTodayDate()}.tar.gz ../node/`
 }
 
 const getTodayDate = () => {
@@ -43,6 +44,7 @@ export const scheduleJobs = async () =>{
     writelog('Running scheduled jobs');
     for(const name in jobs){
         const job = jobs[name]
+        writelog(`Starting job ${name}`)
         exec(job,(error,stdout,stderr)=>{
             if(error) return writelog(`${name} Error ${error.message}`)
             if(stderr) writelog(`${name} Warning ${stderr}`)
