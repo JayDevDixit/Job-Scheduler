@@ -37,22 +37,34 @@ export const writelog = async(errormsg)=>{
     await fs.appendFile(logfile,`${timeStamp()}      ${errormsg}\n`,'utf-8')
 }
 
+const gitPull = (path,name) => {
+  return(`
+    cd ${path} &&
+    OUTPUT=$(git pull origin main) && echo "$OUTPUT" &&
+    if [[ "$OUTPUT" != *"Already up to date."* ]]; then
+    echo "Changes detected. Installing package and restarting"
+    npm i && pm2 restart ${name}
+    else
+      echo "Already up to date. Skipping restart"
+    fi
+    `)
+}
 
 const jobs = {
-    urlReader : 'cd /home/projects/node/urlReader && git pull origin main && npm i',
+    urlReader : gitPull('/home/projects/node/urlReader','urlReader'),
     backup: `find /home/projects/backup -type f -name "backup*.tar.gz" -mtime +10 -delete && cd /home/projects/ && tar --exclude='*/node_modules/*' --exclude='*/.git/*' --exclude='*/logs/*' -czf /home/projects/backup/backup.${getTodayDate()}.tar.gz node/`
 }
 
 
 export const scheduleJobs = async () =>{
-    writelog('Running scheduled jobs');
+    await writelog('Running scheduled jobs');
     for(const name in jobs){
         const job = jobs[name]
-        writelog(`Starting job ${name}`)
-        exec(job,(error,stdout,stderr)=>{
-            if(error) return writelog(`${name} Error ${error.message}`)
-            if(stderr) writelog(`${name} Warning ${stderr}`)
-            if(stdout) writelog(`${name} Success ${stdout}`)
+        await writelog(`Starting job ${name}`)
+        exec(job,{shell:'/bin/bash'}, async (error,stdout,stderr)=>{
+            if(error) return await writelog(`${name} Error ${error.message}`)
+            if(stderr) await writelog(`${name} Warning ${stderr}`)
+            if(stdout) await writelog(`${name} Success ${stdout}`)
         })
     }
 }
