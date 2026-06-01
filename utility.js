@@ -52,6 +52,7 @@ const gitPull = (path,name) => {
 
 const jobs = {
     urlReader : gitPull('/home/projects/node/urlReader','urlReader'),
+    snowserver: gitPull('/home/projects/node/SNOW-Extension-Server','snow-server'),
     backup: `find /home/projects/backup -type f -name "backup*.tar.gz" -mtime +10 -delete && cd /home/projects/ && tar --exclude='*/node_modules/*' --exclude='*/.git/*' --exclude='*/logs/*' -czf /home/projects/backup/backup.${getTodayDate()}.tar.gz node/`
 }
 
