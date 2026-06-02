@@ -1,7 +1,8 @@
-import { scheduleJobs } from "./utility.js"
+import { scheduleJobs, updateScheduler } from "./utility.js"
 
 const manualTrigger = async ()=>{
-    scheduleJobs()
+    await scheduleJobs()
+    await updateScheduler()
 }
 
 manualTrigger()

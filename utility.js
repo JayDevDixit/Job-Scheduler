@@ -56,16 +56,26 @@ const jobs = {
     backup: `find /home/projects/backup -type f -name "backup*.tar.gz" -mtime +10 -delete && cd /home/projects/ && tar --exclude='*/node_modules/*' --exclude='*/.git/*' --exclude='*/logs/*' -czf /home/projects/backup/backup.${getTodayDate()}.tar.gz node/`
 }
 
+const run = async (job,name)=>{
+    await writelog(`Starting job ${name}`)
+    exec(job,{shell:'/bin/bash'}, async (error,stdout,stderr)=>{
+      if(error) await writelog(`${name} Error ${error.message}`)
+      if(stderr) await writelog(`${name} Warning ${stderr}`)
+      if(stdout) await writelog(`${name} Success ${stdout}`)
+  })
+} 
 
 export const scheduleJobs = async () =>{
     await writelog('Running scheduled jobs');
     for(const name in jobs){
         const job = jobs[name]
-        await writelog(`Starting job ${name}`)
-        exec(job,{shell:'/bin/bash'}, async (error,stdout,stderr)=>{
-            if(error) return await writelog(`${name} Error ${error.message}`)
-            if(stderr) await writelog(`${name} Warning ${stderr}`)
-            if(stdout) await writelog(`${name} Success ${stdout}`)
-        })
+        await run(job,name)
     }
+}
+
+export const updateScheduler = async ()=>{
+  await writelog('Updating Job-Scheduled')
+  const name = 'Job-Scheduler'
+  const cmds = gitPull('/home/projects/node/Job-Scheduler',name)
+  run(cmds,name)
 }
