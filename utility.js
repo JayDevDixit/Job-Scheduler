@@ -53,15 +53,21 @@ const gitPull = (path,name) => {
 const jobs = {
     urlReader : gitPull('/home/projects/node/urlReader','urlReader'),
     snowserver: gitPull('/home/projects/node/SNOW-Extension-Server','snow-server'),
-    backup: `find /home/projects/backup -type f -name "backup*.tar.gz" -mtime +10 -delete && cd /home/projects/ && tar --exclude='*/node_modules/*' --exclude='*/.git/*' --exclude='*/logs/*' -czf /home/projects/backup/backup.${getTodayDate()}.tar.gz node/`
+}
+const backupJobs = {
+    nodeBackup: `find /home/projects/backup -type f -name "backup*.tar.gz" -mtime +10 -delete && cd /home/projects/ && tar --exclude='*/node_modules/*' --exclude='*/.git/*' --exclude='*/logs/*' -czf /home/projects/backup/backup.${getTodayDate()}.tar.gz node/`
 }
 
 const run = async (job,name)=>{
     await writelog(`Starting job ${name}`)
-    exec(job,{shell:'/bin/bash'}, async (error,stdout,stderr)=>{
-      if(error) await writelog(`${name} Error ${error.message}`)
-      if(stderr) await writelog(`${name} Warning ${stderr}`)
-      if(stdout) await writelog(`${name} Success ${stdout}`)
+    return new Promise((resolve)=>{
+      exec(job,{shell:'/bin/bash'}, async (error,stdout,stderr)=>{
+        if(error) await writelog(`${name} Error ${error.message}`)
+        if(stderr) await writelog(`${name} Warning ${stderr}`)
+        if(stdout) await writelog(`${name} Success ${stdout}`)
+        resolve()
+    })
+
   })
 } 
 
@@ -72,10 +78,17 @@ export const scheduleJobs = async () =>{
         await run(job,name)
     }
 }
+export const takeBackup = async () =>{
+    await writelog('Running Backup jobs');
+    for(const name in backupJobs){
+        const job = backupJobs[name]
+        await run(job,name)
+    }
+}
 
 export const updateScheduler = async ()=>{
   await writelog('Updating Job-Scheduled')
   const name = 'Job-Scheduler'
   const cmds = gitPull('/home/projects/node/Job-Scheduler',name)
-  run(cmds,name)
+  await run(cmds,name)
 }
