@@ -50,12 +50,15 @@ const gitPull = (path,name) => {
     `)
 }
 
+// these jobs run every 6 hour
 const jobs = {
     urlReader : gitPull('/home/projects/node/urlReader','urlReader'),
     snowserver: gitPull('/home/projects/node/SNOW-Extension-Server','snow-server'),
 }
+// these jobs run once in a day
 const backupJobs = {
-    nodeBackup: `find /home/projects/backup -type f -name "backup*.tar.gz" -mtime +10 -delete && cd /home/projects/ && tar --exclude='*/node_modules/*' --exclude='*/.git/*' --exclude='*/logs/*' -czf /home/projects/backup/backup.${getTodayDate()}.tar.gz node/`
+    nodeBackup: `find /home/projects/backup -type f -name "backup*.tar.gz" -mtime +10 -delete && cd /home/projects/ && tar --exclude='*/node_modules/*' --exclude='*/.git/*' --exclude='*/logs/*' -czf /home/projects/backup/backup.${getTodayDate()}.tar.gz node/`,
+    clearlogs: `find /home/projects/ -type f -path '*/logs/*.log' -mtime +15 -delete`
 }
 
 const run = async (job,name)=>{
